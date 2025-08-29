@@ -1,0 +1,52 @@
+GKE_SECRETS_DBT_PRJ_{{ dbt_project_name|upper }}:
+  CLUSTER_NAME: '{{ cluster_name | default('dbt-bi-platform-workload') }}'
+  CLUSTER_ZONE: '{{ cluster_zone | default('europe-central2') }}'
+  CLUSTER_NODE_COUNT: '{{ cluster_node_count | default('3') }}'
+  CLUSTER_MACHINE_TYPE: '{{ cluster_machine_type | default('e2-highcpu-4') }}'
+  CLUSTER_MACHINE_DISK_TYPE: '{{ cluster_machine_disk_type | default('pd-ssd') }}'
+  NETWORK: '{{ network | default('projects/shared-vpc-project-id/global/networks/vpc-name') }}'
+  SUBNETWORK: '{{ subnetwork | default('projects/shared-vpc-project-id/regions/europe-central2/subnetworks/vpc-subnetwork-name') }}'
+  PRIVATENODES_IP: '{{ privatenodes_ip_range | default('10.201.97.128/28') }}'
+  SHARED_VPC: '{{ shared_vpc | default('false') }}'
+  SERVICES_SECONDARY_RANGE_NAME: '{{ services_secondary_range_name | default('cluster-secondary-subnetwork-name') }}'
+  CLUSTER_SECONDARY_RANGE_NAME: '{{ cluster_secondary_range_name | default('services-secondary-subnetwork-name') }}'
+  PLATFORM: '{{ workload_platform | default('Airflow') }}'
+  NAMESPACE: '{{platform_namespace | default('default') }}'
+  OPERATOR: '{{ operator | default('gke') }}'
+  POD_NAME: '{{ dbt_k8s_pod_name | default('dbt-gke') }}'
+  GIT_URL: '{{ data_model_repository_url | default('https://gitlab.fast.bi/') }}'
+  DAG_ID: 'gke_operator_{{ dbt_project_name }}'
+  DAG_SCHEDULE_INTERVAL: '{{ dbt_dag_schedule_interval | default('@once') }}'
+  DAG_OWNER: '{{ dbt_project_owner | default('Data-Orchestrator Workflows') }}'
+  DAG_TAG:
+    - '{{ dbt_dag_tag | default('gke_operator_dbt') }}'
+  PROJECT_ID: '{{ gcp_project_id }}'
+  PROJECT_LEVEL: '{{ project_level }}'
+  IMAGE: '{{ tsb_dbt_core_image_version | default('europe-central2-docker.pkg.dev/fast-bi-common/bi-platform/tsb-dbt-core:latest') }}'
+  DBT_PROJECT_NAME: '{{ dbt_project_name }}'
+  DBT_PROJECT_DIRECTORY: '{{ dbt_project_name }}'
+  MANIFEST_NAME: '{{ dbt_project_name }}_manifest'
+  DBT_SEED: '{{ dbt_seed_enabled | default('False') }}'
+  DBT_SEED_SHARDING: '{{ dbt_seed_enabled | default('False') }}'
+  DBT_SOURCE: '{{ dbt_source_enabled | default('False') }}'
+  DBT_SOURCE_SHARDING: '{{ dbt_source_enabled | default('False') }}'
+  DBT_SNAPSHOT: '{{ dbt_snapshot_enabled | default('False') }}'
+  DBT_SNAPSHOT_SHARDING: '{{ dbt_snapshot_enabled | default('False') }}'
+  DEBUG: '{{ dbt_debug | default('False') }}'
+  MODEL_DEBUG_LOG: '{{ dbt_model_debug_log | default('False') }}'
+  DATA_QUALITY: '{{ data_quality_enabled | default('False') }}'
+  DATAHUB_ENABLED: '{{ datahub_enabled | default('False') }}'
+  DYNAMIC_DAG: '{{ dynamic_dag | default('False') }}'
+  DATA_WAREHOUSE_PLATFORM: '{{ data_warehouse_platform | default('bigquery') }}'
+  {%- if data_analysis_dbt_project_name is defined and data_analysis_dbt_project_name %}
+  DATA_ANALYSIS_PROJECT: '{{ data_analysis_dbt_project_name | default('False') }}'
+  {%- endif %}
+  {%- if airbyte_connection_id is defined and airbyte_connection_id|length > 0 and airbyte_connection_id != ["None"] %}
+  AIRBYTE_CONNECTION_ID:
+  {%- for item in airbyte_connection_id %}
+    - '{{ item }}'
+  {%- endfor %}
+  AIRBYTE_REPLICATION_FLAG: '{{ airbyte_replication_flag | default('False') }}'
+  {%- if airbyte_workspace_id is defined and airbyte_workspace_id|length > 0 %}
+  AIRBYTE_WORKSPACE_ID: '{{ airbyte_workspace_id }}'
+  {%- endif -%}  {%- endif -%}

@@ -1,0 +1,41 @@
+K8S_SECRETS_DBT_PRJ_{{ dbt_project_name|upper }}:
+  PLATFORM: '{{ workload_platform | default('Airflow') }}'
+  DAG_OWNER: '{{ dbt_project_owner | default('Data-Orchestrator Workflows') }}'
+  NAMESPACE: '{{platform_namespace | default('data-orchestration') }}'
+  OPERATOR: '{{ operator | default('k8s') }}'
+  POD_NAME: '{{ dbt_k8s_pod_name | default('dbt-k8s') }}'
+  GIT_URL: '{{ data_model_repository_url | default('https://gitlab.fast.bi/') }}'
+  DAG_ID: 'k8s_operator_{{ dbt_project_name }}'
+  DAG_SCHEDULE_INTERVAL: '{{ dbt_dag_schedule_interval | default('@once') }}'
+  DAG_TAG:
+    - '{{ dbt_dag_tag | default('k8s_operator_dbt') }}'
+  PROJECT_ID: '{{ gcp_project_id }}'
+  PROJECT_LEVEL: '{{ project_level }}'
+  IMAGE: '{{ tsb_dbt_core_image_version | default('europe-central2-docker.pkg.dev/fast-bi-common/bi-platform/tsb-dbt-core:latest') }}'
+  DBT_PROJECT_NAME: '{{ dbt_project_name }}'
+  DBT_PROJECT_DIRECTORY: '{{ dbt_project_name }}'
+  MANIFEST_NAME: '{{ dbt_project_name }}_manifest'
+  DBT_SEED: '{{ dbt_seed_enabled | default('False') }}'
+  DBT_SEED_SHARDING: '{{ dbt_seed_enabled | default('False') }}'
+  DBT_SOURCE: '{{ dbt_source_enabled | default('False') }}'
+  DBT_SOURCE_SHARDING: '{{ dbt_source_enabled | default('False') }}'
+  DBT_SNAPSHOT: '{{ dbt_snapshot_enabled | default('False') }}'
+  DBT_SNAPSHOT_SHARDING: '{{ dbt_snapshot_enabled | default('False') }}'
+  DEBUG: '{{ dbt_debug | default('False') }}'
+  MODEL_DEBUG_LOG: '{{ dbt_model_debug_log | default('False') }}'
+  DATA_QUALITY: '{{ data_quality_enabled | default('False') }}'
+  DATAHUB_ENABLED: '{{ datahub_enabled | default('False') }}'
+  DYNAMIC_DAG: '{{ dynamic_dag | default('False') }}'
+  DATA_WAREHOUSE_PLATFORM: '{{ data_warehouse_platform | default('bigquery') }}'
+  {%- if data_analysis_dbt_project_name is defined and data_analysis_dbt_project_name %}
+  DATA_ANALYSIS_PROJECT: '{{ data_analysis_dbt_project_name | default('False') }}'
+  {%- endif %}
+  {%- if airbyte_connection_id is defined and airbyte_connection_id|length > 0 and airbyte_connection_id != ["None"] %}
+  AIRBYTE_CONNECTION_ID:
+  {%- for item in airbyte_connection_id %}
+    - '{{ item }}'
+  {%- endfor %}
+  AIRBYTE_REPLICATION_FLAG: '{{ airbyte_replication_flag | default('False') }}'
+  {%- if airbyte_workspace_id is defined and airbyte_workspace_id|length > 0 %}
+  AIRBYTE_WORKSPACE_ID: '{{ airbyte_workspace_id }}'
+  {%- endif -%}  {%- endif -%}

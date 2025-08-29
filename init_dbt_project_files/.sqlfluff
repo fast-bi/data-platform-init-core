@@ -1,0 +1,28 @@
+[sqlfluff]
+templater = dbt
+dialect = {{ data_warehouse_platform }}
+encoding = utf-8
+exclude_rules = L003,L018,L036,LT13,LT12,AL09,JJ01,LT08,RF04,ST06
+#warnings = 
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+load_macros_from_path = macros
+library_path = dbt_packages/dbt_utils
+
+[sqlfluff:templater:dbt]
+target = test
+project_dir = .
+profiles_dir = .
+
+[sqlfluff:indentation]
+indented_joins = False
+indented_using_on = True
+template_blocks_indent = False
+
+[sqlfluff:rules]
+capitalisation_policy = lower
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:convention.terminator]
+multiline_newline = True

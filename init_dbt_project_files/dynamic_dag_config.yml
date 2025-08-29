@@ -1,0 +1,56 @@
+# Dynamic DAG Configuration
+# This file defines multiple DAGs for the same dbt project with different configurations
+
+project_name: '{{ dbt_project_name }}'  # Root project name
+project_vars: "AIRFLOW_VARS_SECRETS"  # Airflow variables secret name
+operator: '{{ operator | default('k8s') }}' # Default operator type (k8s, api, bash, gke)
+
+# DAG configurations
+dags:
+  # First DAG configuration
+  dag_1:
+    DAG_ID: "dbt_project_name_daily"
+    DAG_DESCRIPTION: "Daily DAG for dbt project"
+    DAG_SCHEDULE_INTERVAL: '{{ dbt_dag_schedule_interval | default('@once') }}'
+    DAG_TAG:
+    - '{{ dbt_dag_tag | default('api_operator_dbt') }}'
+    DBT_TAGS: ["daily", "core"]
+    DBT_SEED: '{{ dbt_seed_enabled | default('False') }}'
+    DBT_SEED_SHARDING: '{{ dbt_seed_enabled | default('False') }}'
+    DBT_SOURCE: '{{ dbt_source_enabled | default('False') }}'
+    DBT_SOURCE_SHARDING: '{{ dbt_source_enabled | default('False') }}'
+    DBT_SNAPSHOT: '{{ dbt_snapshot_enabled | default('False') }}'
+    DBT_SNAPSHOT_SHARDING: '{{ dbt_snapshot_enabled | default('False') }}'
+    AIRBYTE_REPLICATION_FLAG: '{{ airbyte_replication_flag | default('False') }}'
+
+  # Second DAG configuration
+  dag_2:
+    DAG_ID: "dbt_project_name_daily"
+    DAG_DESCRIPTION: "Daily DAG for dbt project"
+    DAG_SCHEDULE_INTERVAL: '{{ dbt_dag_schedule_interval | default('@once') }}'
+    DAG_TAG:
+    - '{{ dbt_dag_tag | default('api_operator_dbt') }}'
+    DBT_TAGS: ["daily", "core"]
+    DBT_SEED: '{{ dbt_seed_enabled | default('False') }}'
+    DBT_SEED_SHARDING: '{{ dbt_seed_enabled | default('False') }}'
+    DBT_SOURCE: '{{ dbt_source_enabled | default('False') }}'
+    DBT_SOURCE_SHARDING: '{{ dbt_source_enabled | default('False') }}'
+    DBT_SNAPSHOT: '{{ dbt_snapshot_enabled | default('False') }}'
+    DBT_SNAPSHOT_SHARDING: '{{ dbt_snapshot_enabled | default('False') }}'
+    AIRBYTE_REPLICATION_FLAG: '{{ airbyte_replication_flag | default('False') }}'
+
+  # Third DAG configuration
+  dag_3:
+    DAG_ID: "dbt_project_name_daily"
+    DAG_DESCRIPTION: "Daily DAG for dbt project"
+    DAG_SCHEDULE_INTERVAL: '{{ dbt_dag_schedule_interval | default('@once') }}'
+    DAG_TAG:
+    - '{{ dbt_dag_tag | default('api_operator_dbt') }}'
+    DBT_TAGS: ["daily", "core"]
+    DBT_SEED: '{{ dbt_seed_enabled | default('False') }}'
+    DBT_SEED_SHARDING: '{{ dbt_seed_enabled | default('False') }}'
+    DBT_SOURCE: '{{ dbt_source_enabled | default('False') }}'
+    DBT_SOURCE_SHARDING: '{{ dbt_source_enabled | default('False') }}'
+    DBT_SNAPSHOT: '{{ dbt_snapshot_enabled | default('False') }}'
+    DBT_SNAPSHOT_SHARDING: '{{ dbt_snapshot_enabled | default('False') }}'
+    AIRBYTE_REPLICATION_FLAG: '{{ airbyte_replication_flag | default('False') }}'

@@ -1,0 +1,19 @@
+---
+extends: default
+rules:
+  document-start: disable
+  trailing-spaces:
+    level: warning
+  indentation: disable
+  line-length: disable
+  key-duplicates: enable
+  new-line-at-end-of-file: disable
+  new-lines:
+    type: unix
+  truthy: disable
+  empty-lines:
+    max: 5
+    max-start: 5
+    max-end: 5
+  empty-values:
+    level: error

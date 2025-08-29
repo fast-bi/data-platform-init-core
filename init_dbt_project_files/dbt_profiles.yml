@@ -1,0 +1,205 @@
+{%- if data_warehouse_platform is defined and (data_warehouse_platform | length > 0) and data_warehouse_platform == 'snowflake' %}
+{{- dbt_project_name }}:
+  target: sa
+  outputs:
+    sa:
+      type: snowflake
+      account: {{ snowflake_account if snowflake_account is defined else 'default_account' }}
+      user: {{ snowflake_user if snowflake_user is defined else 'default_user' }}
+      role: {{ snowflake_role }}
+      database: {{ snowflake_db }}
+      warehouse: {{ snowflake_warehouse }}
+      schema: {{ snowflake_schema }}
+      # Authentication config
+      private_key_path: /snowsql/secrets/rsa_key.p8
+      private_key_passphrase: {% raw %}"{{ env_var('SNOWSQL_PRIVATE_KEY_PASSPHRASE') }}"{% endraw %}
+      # optional
+      threads: 10
+      client_session_keep_alive: False
+      query_tag: anything
+      connect_retries: 0
+      connect_timeout: 10
+      retry_on_database_errors: False
+      retry_all: False
+      reuse_connections: True
+    test:
+      type: snowflake
+      account: {{ snowflake_account if snowflake_account is defined else 'default_account' }}
+      user: {{ snowflake_user if snowflake_user is defined else 'default_user' }}
+      role: {{ snowflake_role }}
+      database: {{ snowflake_db }}
+      warehouse: {{ snowflake_warehouse }}
+      schema: {% raw %}"e2e_test_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+      # Authentication config
+      private_key_path: /snowsql/secrets/rsa_key.p8
+      private_key_passphrase: {% raw %}"{{ env_var('SNOWSQL_PRIVATE_KEY_PASSPHRASE') }}"{% endraw %}
+      # optional
+      threads: 10
+      client_session_keep_alive: False
+      query_tag: anything
+      connect_retries: 0
+      connect_timeout: 10
+      retry_on_database_errors: False
+      retry_all: False
+      reuse_connections: True
+    dev:
+      type: snowflake
+      account: {{ snowflake_account if snowflake_account is defined else 'default_account' }}
+      database: {{ snowflake_db }}
+      warehouse: {{ snowflake_warehouse }}
+      schema: {% raw %}"dev_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+      # Authentication config
+      user: {% raw %}"{{ env_var('SNOWSQL_USERNAME') }}"{% endraw %}
+      password: {% raw %}"{{ env_var('SNOWSQL_PASSWORD') }}"{% endraw %}
+      role: {% raw %}"{{ env_var('SNOWSQL_ROLE') }}"{% endraw %}
+      # optional
+      threads: 10
+      client_session_keep_alive: False
+      query_tag: anything
+      connect_retries: 0
+      connect_timeout: 10
+      retry_on_database_errors: False
+      retry_all: False
+      reuse_connections: True
+
+{%- elif data_warehouse_platform is defined and (data_warehouse_platform | length > 0) and data_warehouse_platform == 'bigquery' %}
+{{- dbt_project_name }}:
+  target: sa
+  outputs:
+    sa:
+      type: bigquery
+      method: oauth
+      project: {{ gcp_project_id }}
+      dataset: prod
+      priority: batch
+      threads: 35
+      {%- if gcp_project_region is defined and gcp_project_region|length > 0 %}
+      location: {{ gcp_project_region }}
+      {%- else %}
+      location: 'europe-central2'
+      {%- endif %}
+      job_execution_timeout_seconds: 3600
+      job_retries: 1
+      {%- if gcp_project_sa_email is defined and gcp_project_sa_email|length > 0 %}
+      impersonate_service_account: {{ gcp_project_sa_email }}
+      {%- else %}
+      impersonate_service_account: dbt-sa@{{ gcp_project_id }}.iam.gserviceaccount.com
+      {%- endif %}
+    test:
+      type: bigquery
+      method: oauth
+      project: {{ gcp_project_id }}
+      dataset: {% raw %}"e2e_test_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+      priority: batch
+      threads: 35
+      {%- if gcp_project_region is defined and gcp_project_region|length > 0 %}
+      location: {{ gcp_project_region }}
+      {%- else %}
+      location: 'europe-central2'
+      {%- endif %}
+      job_execution_timeout_seconds: 3600
+      job_retries: 1
+      {%- if gcp_project_sa_email is defined and gcp_project_sa_email|length > 0 %}
+      impersonate_service_account: {{ gcp_project_sa_email }}
+      {%- else %}
+      impersonate_service_account: dbt-sa@{{ gcp_project_id }}.iam.gserviceaccount.com
+      {%- endif %}
+    dev:
+      type: bigquery
+      method: oauth
+      project: {{ gcp_project_id }}
+      dataset: {% raw %}"dev_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+      {%- if gcp_project_region is defined and gcp_project_region|length > 0 %}
+      location: {{ gcp_project_region }}
+      {%- else %}
+      location: 'europe-central2'
+      {%- endif %}
+      threads: 35
+      job_execution_timeout_seconds: 300
+
+{%- elif data_warehouse_platform is defined and (data_warehouse_platform | length > 0) and data_warehouse_platform == 'redshift' %}
+{{- dbt_project_name }}:
+  target: sa
+  outputs:
+    sa:
+      type: redshift
+      host: {% raw %}"{{ env_var('REDSHIFT_HOST') }}"{% endraw %}
+      port: {{ redshift_port | default('5439') }}
+      user: {% raw %}"{{ env_var('REDSHIFT_USER') }}"{% endraw %}
+      password: {% raw %}"{{ env_var('REDSHIFT_PASSWORD') }}"{% endraw %}
+      dbname: {{ redshift_database }}
+      schema: {{ redshift_schema }}
+
+      # Optional Redshift configs:
+      sslmode: prefer
+      ra3_node: true 
+      autocommit: true 
+      threads: 35
+      connect_timeout: 600
+    test:
+      type: redshift
+      host: {% raw %}"{{ env_var('REDSHIFT_HOST') }}"{% endraw %}
+      port: {{ redshift_port | default('5439') }}
+      user: {% raw %}"{{ env_var('REDSHIFT_USER') }}"{% endraw %}
+      password: {% raw %}"{{ env_var('REDSHIFT_PASSWORD') }}"{% endraw %}
+      dbname: {{ redshift_database }}
+      schema: {% raw %}"e2e_test_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+
+      # Optional Redshift configs:
+      sslmode: prefer
+      ra3_node: true 
+      autocommit: true 
+      threads: 35
+      connect_timeout: 600
+    dev:
+      type: redshift
+      host: {% raw %}"{{ env_var('REDSHIFT_HOST') }}"{% endraw %}
+      port: {{ redshift_port | default('5439') }}
+      user: {% raw %}"{{ env_var('REDSHIFT_USER') }}"{% endraw %}
+      password: {% raw %}"{{ env_var('REDSHIFT_PASSWORD') }}"{% endraw %}
+      dbname: {{ redshift_database }}
+      schema: {% raw %}"dev_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+
+      # Optional Redshift configs:
+      sslmode: prefer
+      ra3_node: true 
+      autocommit: true 
+      threads: 10
+      connect_timeout: 600
+{%- elif data_warehouse_platform is defined and (data_warehouse_platform | length > 0) and data_warehouse_platform == 'fabric' %}
+{{- dbt_project_name }}:
+  target: sa
+  outputs:
+    sa:
+      type: fabric
+      driver: 'ODBC Driver 18 for SQL Server'
+      server: {% raw %}"{{ env_var('FABRIC_SERVER') }}"{% endraw %}
+      port: {% raw %}"{{ env_var('FABRIC_PORT') }}"{% endraw %}
+      database: {{ fabric_database }}
+      schema: {{ fabric_schema}}
+      authentication: ServicePrincipal
+      tenant_id: {% raw %}"{{ env_var('FABRIC_TENANT_ID') }}"{% endraw %}
+      client_id: {% raw %}"{{ env_var('FABRIC_CLIENT_ID') }}"{% endraw %}
+      client_secret: {% raw %}"{{ env_var('FABRIC_CLIENT_SECRET') }}"{% endraw %}
+    test:
+      type: fabric
+      driver: 'ODBC Driver 18 for SQL Server'
+      server: {% raw %}"{{ env_var('FABRIC_SERVER') }}"{% endraw %}
+      port: {% raw %}"{{ env_var('FABRIC_PORT') }}"{% endraw %}
+      database: {{ fabric_database }}
+      schema: {% raw %}"e2e_test_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+      authentication: ServicePrincipal
+      tenant_id: {% raw %}"{{ env_var('FABRIC_TENANT_ID') }}"{% endraw %}
+      client_id: {% raw %}"{{ env_var('FABRIC_CLIENT_ID') }}"{% endraw %}
+      client_secret: {% raw %}"{{ env_var('FABRIC_CLIENT_SECRET') }}"{% endraw %}
+    dev:
+      type: fabric
+      driver: 'ODBC Driver 18 for SQL Server'
+      server: {% raw %}"{{ env_var('FABRIC_SERVER') }}"{% endraw %}
+      port: {% raw %}"{{ env_var('FABRIC_PORT') }}"{% endraw %}
+      database: {{ fabric_database }}
+      schema: {% raw %}"dev_{{ modules.re.sub('[^a-zA-Z0-9]', '_', env_var('GIT_BRANCH').lower()) }}"{% endraw %}
+      authentication: ActiveDirectoryPassword
+      user: {% raw %}"{{ env_var('FABRIC_USER') }}"{% endraw %}
+      password: {% raw %}"{{ env_var('FABRIC_PASSWORD') }}"{% endraw %}
+{%- endif %}

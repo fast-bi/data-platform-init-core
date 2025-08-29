@@ -1,0 +1,9 @@
+
+.gitlab-ci-v2.yml
+/.idea/workspace.xml
+app/gk_env
+app/__pycache__
+app/app.log
+app.log
+help.txt
+venv/
