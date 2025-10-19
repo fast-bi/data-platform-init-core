@@ -247,13 +247,19 @@ def create_source_yml_dict(tb, tb_name, prefix_with_tb_name):
                             add_model_column(model_columns, sub_col_name, sub_col_type, sub_col_desc)
                         else:
                             col_info = tb["stream"]["jsonSchema"]["properties"][col]["properties"][col_obj_prop]
-                            for sub_col_obj_prop in col_info["properties"]:
-                                sub_sub_col_name = (sub_col_name + "." + sub_col_obj_prop)
-                                sub_sub_col_type = col_info["properties"][sub_col_obj_prop].get("type", "string")
-                                sub_sub_col_desc = col_info["properties"][sub_col_obj_prop].get("description", "")
-                                add_source_column(source_columns, sub_sub_col_name, sub_sub_col_type,
-                                                  sub_sub_col_desc, )
-                                add_model_column(model_columns, sub_sub_col_name, sub_sub_col_type, sub_sub_col_desc, )
+                            if "properties" in col_info:
+                                for sub_col_obj_prop in col_info["properties"]:
+                                    sub_sub_col_name = (sub_col_name + "." + sub_col_obj_prop)
+                                    sub_sub_col_type = col_info["properties"][sub_col_obj_prop].get("type", "string")
+                                    sub_sub_col_desc = col_info["properties"][sub_col_obj_prop].get("description", "")
+                                    add_source_column(source_columns, sub_sub_col_name, sub_sub_col_type,
+                                                      sub_sub_col_desc, )
+                                    add_model_column(model_columns, sub_sub_col_name, sub_sub_col_type, sub_sub_col_desc, )
+                            else:
+                                # Handle case where col_info doesn't have properties key
+                                # Treat it as a simple object without nested properties
+                                add_source_column(source_columns, sub_col_name, "object", "")
+                                add_model_column(model_columns, sub_col_name, "object", "")
             else:
                 add_source_column(source_columns, col, col_type,
                                   tb["stream"]["jsonSchema"]["properties"][col].get("description", ""))
