@@ -3,7 +3,7 @@ BASH_SECRETS_DBT_PRJ_{{ dbt_project_name|upper }}:
   DAG_OWNER: '{{ dbt_project_owner | default('Data-Orchestrator Workflows') }}'
   NAMESPACE: '{{platform_namespace | default('data-orchestration') }}'
   OPERATOR: '{{ operator | default('bash') }}'
-  GIT_URL: '{{ data_model_repository_url | default('https://gitlab.fast.bi/') }}'
+  GIT_URL: '{{ data_model_repository_url | default('https://github.com/') }}'
   DAG_ID: 'bash_operator_{{ dbt_project_name }}'
   DAG_SCHEDULE_INTERVAL: '{{ dbt_dag_schedule_interval | default('@once') }}'
   DAG_TAG:
