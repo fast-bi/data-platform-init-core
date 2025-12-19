@@ -159,9 +159,7 @@ def create_model(source_name: str, source_table_name: str, t_name: str, columns:
         formatted_columns = ',\n               '.join(
             f"{quote_value_with_dot(c)} as `{convert_value_to_system_standard(c)}`" for c in columns)
 
-    # Replace 'fields' FIRST to avoid substring matching issues with source_table_name
     file_data = file_data.replace("fields", formatted_columns)
-    # Then replace other placeholders
     file_data = file_data.replace("source_name", source_name)
     file_data = file_data.replace("source_table_name", source_table_name)
 
