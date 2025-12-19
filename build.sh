@@ -18,3 +18,10 @@ docker buildx build . \
   --tag europe-central2-docker.pkg.dev/fast-bi-common/bi-platform/tsb-dbt-init-core:${dbt_init_version} \
   --platform linux/amd64 \
   --push
+
+docker buildx build . \
+  --pull \
+  --tag 4fastbi/data-platform-init-core:dev-latest \
+  --tag 4fastbi/data-platform-init-core:dev-v0.1.2 \
+  --platform linux/amd64 \
+  --push
